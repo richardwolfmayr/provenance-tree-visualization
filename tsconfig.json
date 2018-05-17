@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
+    "lib": ["es2015", "dom"],
     "outDir": "./dist/",
     "noImplicitAny": true,
     "sourceMap": true,
