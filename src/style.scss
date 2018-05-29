@@ -1,0 +1,28 @@
+.node {
+    circle {
+        stroke-width: 3px;
+    }
+
+    &.selected {
+        fill: blue;
+        stroke: darkblue;
+    }
+
+    &:not(.selected) {
+        fill: lightsteelblue;
+        stroke: steelblue;
+    }
+    
+    text {
+        fill: black;
+        stroke-width:0px;
+        font: 12px sans-serif;
+    }
+
+}
+
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+}

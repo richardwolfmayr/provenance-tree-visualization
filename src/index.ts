@@ -1,62 +1,39 @@
 import './style.scss';
 import * as d3 from 'd3';
-import { ProvenanceGraph, ProvenanceTracker, ActionFunctionRegistry, StateNode } from '@visualstorytelling/provenance-core';
+import { Calculator } from './examples/Calculator';
+import { ProvenanceGraph, ProvenanceTracker, ProvenanceGraphTraverser, ReversibleAction, IrreversibleAction, ActionFunctionRegistry, StateNode, RootNode, ProvenanceNode } from '@visualstorytelling/provenance-core';
+import { ProvenanceTreeVisualization } from './ProvenanceTreeVisualization';
 
-const graph = new ProvenanceGraph(this);
-const registry = new ActionFunctionRegistry();
-const tracker = new ProvenanceTracker(registry, graph);
+class Index {
+    private graph = new ProvenanceGraph({ name: 'calculator', version: '1.0.0' });
+    private registry = new ActionFunctionRegistry();
+
+    private tracker = new ProvenanceTracker(this.registry, this.graph);
+    private traverser = new ProvenanceGraphTraverser(this.registry, this.graph);
+
+    private app = new Calculator(this.graph, this.registry, this.tracker, this.traverser);
+    private statusDisplay = <HTMLElement>(document.createElement('div'));
+    
+    constructor() {        
+        this.app.setupBasicGraph().then(() => {
+            const provenanceTreeVisualization = new ProvenanceTreeVisualization(this.graph, this.traverser, this.graph.root);
+        });
+
+        document.body.appendChild(this.statusDisplay);
+        
+        this.graph.on('currentChanged', (event) => this.displayCurrentState(event, this.app));
+    }
 
 
-const windowWidth = 960;
-const windowHeight = 480;
+    displayCurrentState(event: Event, calculator:Calculator) {        
+        this.statusDisplay.innerHTML = `
+            <p>${calculator.currentState()}</p>
+        `;
+    }
+}
 
-let mySvg = d3.select('body')
-    .append('svg')
-    .attr('width', windowWidth)
-    .attr('height', windowHeight);
+const index = new Index();
 
-let plotMargins = {
-    top: 30,
-    bottom: 30,
-    left: 150,
-    right: 30
-};
-let plotGroup = mySvg.append('g')
-    .classed('plot', true)
-    .attr('transform', `translate(${plotMargins.left},${plotMargins.top})`);
 
-let plotWidth = windowWidth - plotMargins.left - plotMargins.right;
-let plotHeight = windowHeight - plotMargins.top - plotMargins.bottom;
 
-let xScale = d3.scaleTime()
-    .range([0, plotWidth]);
-let xAxis = d3.axisBottom(xScale);
-let xAxisGroup = plotGroup.append('g')
-    .classed('x', true)
-    .classed('axis', true)
-    .attr('transform', `translate(${0},${plotHeight})`)
-    .call(xAxis);
 
-let yScale = d3.scaleLinear()
-    .range([plotHeight, 0]);
-let yAxis = d3.axisLeft(yScale);
-let yAxisGroup = plotGroup.append('g')
-    .classed('y', true)
-    .classed('axis', true)
-    .call(yAxis);
-
-let pointsGroup = plotGroup.append('g')
-    .classed('points', true);
-
-async function bla() {
-    const data:any = await d3.json('./graph.json');
-    let prepared = data.children.map((d: any) => {
-        return {
-            date: new Date(d.created * 1000),
-            score: d.score
-        }
-    }); 
-    console.log(prepared);
-};
-
-bla();
