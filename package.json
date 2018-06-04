@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
-    "start": "webpack-dev-server --watch --inline --host 0.0.0.0"
+    "start": "webpack-dev-server --watch --inline --host 0.0.0.0",
+    "lint" : "tslint"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.21.0",
+    "tslint": "^5.10.0",
     "ts-loader": "^4.3.0",
     "typescript": "^2.8.3",
     "url-loader": "^1.0.1",
