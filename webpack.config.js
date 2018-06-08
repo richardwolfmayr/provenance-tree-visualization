@@ -9,55 +9,55 @@ module.exports = {
     rules: [{
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: [/node_modules/]
+        exclude: [/node_modules/],
       },
       {
         test: /\.scss$/,
-        loader: 'style-loader!css-loader!sass-loader'
+        loader: 'style-loader!css-loader!sass-loader',
       },
       {
         test: /\.json$/,
-        loader: 'json-loader'
+        loader: 'json-loader',
       },
       {
         test: /\.(png|jpg)$/,
         loader: 'url-loader',
         query: {
           limit: 10000, //inline <= 10kb
-        }
+        },
       },
       {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'url-loader',
         query: {
           limit: 10000, //inline <= 10kb
-          mimetype: 'application/font-woff'
-        }
+          mimetype: 'application/font-woff',
+        },
       },
       {
         test: /\.svg(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'url-loader',
         query: {
           limit: 10000, //inline <= 10kb
-          mimetype: 'image/svg+xml'
-        }
+          mimetype: 'image/svg+xml',
+        },
       },
       {
         test: /\.(ttf|eot)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader'
-      }
-    ]
+        loader: 'file-loader',
+      },
+    ],
 
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js']
+    extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
   },
   plugins: [new HtmlWebpackPlugin()],
   devServer: {
-    contentBase: path.resolve(__dirname, 'dist/')
-  }
+    contentBase: path.resolve(__dirname, 'dist/'),
+  },
 };

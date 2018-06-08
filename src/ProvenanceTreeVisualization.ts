@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
-
-import { HierarchyLink, HierarchyNode, HierarchyPointNode, TreeLayout } from 'd3';
+import { HierarchyLink, HierarchyNode, HierarchyPointNode } from 'd3';
 import {
   ProvenanceNode,
-  ProvenanceGraphTraverser, isStateNode
+  ProvenanceGraphTraverser,
+  isStateNode,
 } from '@visualstorytelling/provenance-core';
 
 type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
@@ -11,6 +11,20 @@ type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
 export class ProvenanceTreeVisualization {
   private traverser: ProvenanceGraphTraverser;
   private svg: D3SVGSelection;
+
+  constructor(
+    traverser: ProvenanceGraphTraverser,
+    elm: HTMLDivElement,
+  ) {
+    this.traverser = traverser;
+    this.svg = (d3.select(elm)
+      .append('svg') as D3SVGSelection)
+      .attr('width', 1000)
+      .attr('height', 700)
+    ;
+    traverser.graph.on('currentChanged', () => this.update());
+    this.update();
+  }
 
   public update() {
     const treeRoot = d3.hierarchy(this.traverser.graph.root);
@@ -27,6 +41,7 @@ export class ProvenanceTreeVisualization {
       .attr('class', 'node')
       .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
       .on('click', (d) => this.traverser.toStateNode(d.data.id))
+    ;
 
     newNodes
       .append('circle')
@@ -68,19 +83,5 @@ export class ProvenanceTreeVisualization {
       .duration(100)
       .attr('d', linkPath);
 
-  }
-
-  constructor(
-    traverser: ProvenanceGraphTraverser,
-    elm: HTMLDivElement,
-  ) {
-    this.traverser = traverser;
-    this.svg = (d3.select(elm)
-      .append('svg') as D3SVGSelection)
-      .attr('width', 1000)
-      .attr('height', 700)
-    ;
-    traverser.graph.on('currentChanged', () => this.update());
-    this.update();
   }
 }
