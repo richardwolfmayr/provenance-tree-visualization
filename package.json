@@ -8,22 +8,25 @@
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "start": "webpack-dev-server --watch --inline --host 0.0.0.0",
-    "lint" : "tslint"
+    "lint": "tslint"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/d3": "^5.0.0",
+    "@types/d3-hierarchy": "^1.1.2",
     "css-loader": "^0.28.11",
     "file-loader": "^1.1.11",
     "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
     "json-loader": "^0.5.7",
     "lodash": "^4.17.10",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.21.0",
-    "tslint": "^5.10.0",
     "ts-loader": "^4.3.0",
+    "tslint": "^5.10.0",
     "typescript": "^2.8.3",
     "url-loader": "^1.0.1",
     "v": "^0.3.0",
@@ -32,8 +35,8 @@
     "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
-    "@types/d3": "^5.0.0",
     "@visualstorytelling/provenance-core": "^1.1.2",
-    "d3": "^5.4.0"
+    "d3": "^5.4.0",
+    "d3-hierarchy": "^1.1.6"
   }
 }
