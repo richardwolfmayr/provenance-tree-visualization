@@ -8,17 +8,13 @@
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "start": "webpack-dev-server --watch --inline --host 0.0.0.0",
-    "format": "prettier --write ./src/**/*.{ts,tsx,json,js,scss,css}; tslint --project . --fix",
-    "lint": "tslint --project ."
+    "format": "prettier --write ./src/**/*.{ts,tsx,json,js,scss,css} && tslint --project . --fix && sleep 1",
+    "lint": "tslint --project .",
+    "precommit": "yarn format"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn format"
-    }
-  },
   "devDependencies": {
     "@types/d3": "^5.0.0",
     "@types/d3-hierarchy": "^1.1.2",
