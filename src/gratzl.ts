@@ -24,6 +24,7 @@ export interface IGratzlLayout<Datum> {
 export interface IHierarchyPointNodeWithMaxDepth<Datum>
   extends HierarchyPointNode<Datum> {
   maxDescendantDepth: number;
+  xOffset: number;
   parent: IHierarchyPointNodeWithMaxDepth<Datum>;
   ancestors(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
   leaves(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
@@ -36,14 +37,14 @@ export default function<Datum>(): IGratzlLayout<Datum> {
   const widths: number[] = [];
 
   function setTreeX(node: IHierarchyPointNodeWithMaxDepth<Datum>, val: number) {
-    node.x = val;
+    node.xOffset = val;
     widths[node.depth] = val;
     if (node.children) {
       node
         .leaves()
         .sort(depthSort)
         .forEach((leaf) => {
-          if (typeof leaf.x === 'undefined') {
+          if (typeof leaf.xOffset === 'undefined') {
             const width = Math.max.apply(
               null,
               widths.slice(node.depth, leaf.depth + 1),
@@ -53,7 +54,7 @@ export default function<Datum>(): IGratzlLayout<Datum> {
         });
     }
 
-    if (node.parent && typeof node.parent.x === 'undefined') {
+    if (node.parent && typeof node.parent.xOffset === 'undefined') {
       setTreeX(node.parent, val);
     }
   }
@@ -110,7 +111,7 @@ export default function<Datum>(): IGratzlLayout<Datum> {
     maxX: number,
     maxY: number,
   ): void {
-    node.x = dx - (dx / maxX) * node.x;
+    node.x = dx - (dx / maxX) * node.xOffset;
     node.y = (dy / maxY) * node.depth;
   }
 
