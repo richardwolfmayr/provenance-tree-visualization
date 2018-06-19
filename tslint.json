@@ -18,6 +18,7 @@
                 "named-imports-order": "any"
             }
         ],
+        "variable-name": false,
         "quotemark": [true, "single", "avoid-escape", "avoid-template"]
     },
     "rulesDirectory": []

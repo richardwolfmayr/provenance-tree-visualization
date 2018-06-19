@@ -5,6 +5,7 @@ import {
   ProvenanceGraphTraverser,
   isStateNode,
 } from '@visualstorytelling/provenance-core';
+import gratzl from './gratzl';
 
 type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
 
@@ -28,8 +29,15 @@ export class ProvenanceTreeVisualization {
 
   public update() {
     const treeRoot = d3.hierarchy(this.traverser.graph.root);
-    const treeLayout = d3.tree<ProvenanceNode>().size([500, 500]);
-    const tree = treeLayout(treeRoot);
+    const treeLayout = gratzl<ProvenanceNode>().size([500, 500]);
+
+    let layoutCurrentNode = treeRoot;
+    treeRoot.each((node) => {
+      if (node.data === this.traverser.graph.current) {
+        layoutCurrentNode = node;
+      }
+    });
+    const tree = treeLayout(treeRoot, layoutCurrentNode);
     const treeNodes = tree.descendants();
 
     const nodes = this.svg
