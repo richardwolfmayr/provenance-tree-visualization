@@ -15,12 +15,12 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "*.{ts,tsx,js,jsx}": [
       "prettier --write",
       "tslint --fix",
       "git add"
     ],
-    "*.{js,jsx,css,scss,json}": [
+    "*.{css,scss,json}": [
       "prettier --write",
       "git add"
     ]
