@@ -5,9 +5,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "main": "dist/provenance-core.umd.js",
-  "module": "dist/provenance-core.es5.js",
-  "typings": "dist/types/provenance-core.d.ts",
+  "main": "dist/provenance-tree-visualization.umd.js",
+  "module": "dist/provenance-tree-visualization.es5.js",
+  "typings": "dist/types/provenance-tree-visualization.d.ts",
   "files": [
     "dist"
   ],
