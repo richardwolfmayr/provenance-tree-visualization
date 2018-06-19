@@ -1,20 +1,20 @@
 import './style.scss';
-import * as d3 from 'd3';
 import { Calculator } from './examples/Calculator';
 import {
   ProvenanceGraph,
   ProvenanceTracker,
   ProvenanceGraphTraverser,
-  ReversibleAction,
-  IrreversibleAction,
   ActionFunctionRegistry,
-  StateNode,
-  RootNode,
-  ProvenanceNode,
 } from '@visualstorytelling/provenance-core';
 import { ProvenanceTreeVisualization } from './ProvenanceTreeVisualization';
 
-const makeButton = ({text, onClick}: {text: string, onClick: () => any}): HTMLButtonElement => {
+const makeButton = ({
+  text,
+  onClick,
+}: {
+  text: string;
+  onClick: () => any;
+}): HTMLButtonElement => {
   const button = document.createElement('button');
   button.innerHTML = text;
   button.addEventListener('click', onClick);
@@ -43,20 +43,25 @@ class Index {
   constructor() {
     document.body.appendChild(this.statusDisplay);
     document.body.appendChild(this.visContainer);
-    document.body.appendChild(makeButton({text: 'test', onClick: () => {
-        this.tracker.applyAction({
-          do: 'add',
-          doArguments: [5],
-          undo: 'subtract',
-          undoArguments: [5],
-          metadata: {
-            createdBy: 'me',
-            createdOn: 'now',
-            tags: [],
-            userIntent: 'Because I want to',
-          },
-        });
-      }}));
+    document.body.appendChild(
+      makeButton({
+        text: 'test',
+        onClick: () => {
+          this.tracker.applyAction({
+            do: 'add',
+            doArguments: [5],
+            undo: 'subtract',
+            undoArguments: [5],
+            metadata: {
+              createdBy: 'me',
+              createdOn: 'now',
+              tags: [],
+              userIntent: 'Because I want to',
+            },
+          });
+        },
+      }),
+    );
 
     this.app.setupBasicGraph().then(() => {
       this.provenanceTreeVisualization = new ProvenanceTreeVisualization(

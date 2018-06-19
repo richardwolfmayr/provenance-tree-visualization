@@ -1,13 +1,13 @@
 //allow sass modules
 declare module "*.scss" {
-    const content: string;
-    export default content;
+  const content: string;
+  export default content;
 }
 declare module "*.png";
 //allow html dependencies
 declare module "*.html" {
-    const content: string;
-    export default content;
+  const content: string;
+  export default content;
 }
 //allow json dependencies
 declare module "*.json";

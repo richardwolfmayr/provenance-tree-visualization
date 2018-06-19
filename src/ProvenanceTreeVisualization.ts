@@ -13,16 +13,11 @@ export class ProvenanceTreeVisualization {
   private traverser: ProvenanceGraphTraverser;
   private svg: D3SVGSelection;
 
-  constructor(
-    traverser: ProvenanceGraphTraverser,
-    elm: HTMLDivElement,
-  ) {
+  constructor(traverser: ProvenanceGraphTraverser, elm: HTMLDivElement) {
     this.traverser = traverser;
-    this.svg = (d3.select(elm)
-      .append('svg') as D3SVGSelection)
+    this.svg = (d3.select(elm).append('svg') as D3SVGSelection)
       .attr('width', 1000)
-      .attr('height', 700)
-    ;
+      .attr('height', 700);
     traverser.graph.on('currentChanged', () => this.update());
     this.update();
   }
@@ -44,40 +39,41 @@ export class ProvenanceTreeVisualization {
       .selectAll('g.node')
       .data(treeNodes, (d: HierarchyNode<ProvenanceNode>) => d.data.id);
 
-    const newNodes = nodes.enter()
+    const newNodes = nodes
+      .enter()
       .append('g')
       .attr('class', 'node')
       .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
-      .on('click', (d) => this.traverser.toStateNode(d.data.id))
-    ;
+      .on('click', (d) => this.traverser.toStateNode(d.data.id));
 
-    newNodes
-      .append('circle')
-      .attr('r', 5)
-    ;
+    newNodes.append('circle').attr('r', 5);
 
     newNodes
       .append('text')
-      .text((d) => isStateNode(d.data)
-        ? d.data.label
-        : '')
-    ;
+      .text((d) => (isStateNode(d.data) ? d.data.label : ''));
 
     nodes
       .transition()
       .duration(100)
-      .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
-    ;
+      .attr('transform', (d) => `translate(${d.x}, ${d.y})`);
 
     const links = this.svg
       .selectAll('path.link')
-      .data(tree.links(), (d: HierarchyLink<ProvenanceNode>) => d.target.data.id);
+      .data(
+        tree.links(),
+        (d: HierarchyLink<ProvenanceNode>) => d.target.data.id,
+      );
 
-    const linkPath = (
-      { source, target }: {source: HierarchyPointNode<ProvenanceNode>, target: HierarchyPointNode<ProvenanceNode>},
-    ) => {
+    const linkPath = ({
+      source,
+      target,
+    }: {
+      source: HierarchyPointNode<ProvenanceNode>;
+      target: HierarchyPointNode<ProvenanceNode>;
+    }) => {
       const [s, t] = [source, target];
-      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) / 2} ${t.x},${t.y}`;
+      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) /
+        2} ${t.x},${t.y}`;
     };
 
     links
@@ -90,6 +86,5 @@ export class ProvenanceTreeVisualization {
       .transition()
       .duration(100)
       .attr('d', linkPath);
-
   }
 }
