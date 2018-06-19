@@ -17,13 +17,13 @@ export interface IGratzlLayout<Datum> {
     root: HierarchyNode<Datum>,
     activeNode: HierarchyNode<Datum>,
   ): IHierarchyPointNodeWithMaxDepth<Datum>;
-  size?(): [number, number];
-  size?(size: [number, number]): this;
+  size(): [number, number];
+  size(size: [number, number]): this;
 }
 
 export interface IHierarchyPointNodeWithMaxDepth<Datum>
   extends HierarchyPointNode<Datum> {
-  maxDescendantDepth: number | undefined;
+  maxDescendantDepth: number;
   parent: IHierarchyPointNodeWithMaxDepth<Datum>;
   ancestors(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
   leaves(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
@@ -58,51 +58,52 @@ export default function<Datum>(): IGratzlLayout<Datum> {
     }
   }
 
-  const tree: IGratzlLayout<Datum> = (_root, _activeNode) => {
-    /*
+  const tree: IGratzlLayout<Datum> = Object.assign(
+    (_root: HierarchyNode<Datum>, _activeNode: HierarchyNode<Datum>) => {
+      /*
     * set maxDescendantDepth on each node,
     * which is the depth of its deepest child
     *
     * */
 
-    const root: IHierarchyPointNodeWithMaxDepth<
-      Datum
-    > = _root as IHierarchyPointNodeWithMaxDepth<Datum>;
-    const activeNode = _activeNode as IHierarchyPointNodeWithMaxDepth<Datum>;
+      const root = _root as IHierarchyPointNodeWithMaxDepth<Datum>;
+      const activeNode = _activeNode as IHierarchyPointNodeWithMaxDepth<Datum>;
 
-    root.leaves().forEach((leaf) => {
-      leaf.ancestors().forEach((leafAncestor) => {
-        if (
-          !leafAncestor.maxDescendantDepth ||
-          leaf.depth > leafAncestor.maxDescendantDepth
-        ) {
-          leafAncestor.maxDescendantDepth = leaf.depth;
+      root.leaves().forEach((leaf) => {
+        leaf.ancestors().forEach((leafAncestor) => {
+          if (
+            !leafAncestor.maxDescendantDepth ||
+            leaf.depth > leafAncestor.maxDescendantDepth
+          ) {
+            leafAncestor.maxDescendantDepth = leaf.depth;
+          }
+        });
+      });
+
+      /* rendering should start at the deepest leaf of activeNode. */
+      let deepestLeaf = activeNode;
+      activeNode.leaves().forEach((leaf) => {
+        if (deepestLeaf.depth < leaf.depth) {
+          deepestLeaf = leaf;
         }
       });
-    });
 
-    /* rendering should start at the deepest leaf of activeNode. */
-    let deepestLeaf = activeNode;
-    activeNode.leaves().forEach((leaf) => {
-      if (deepestLeaf.depth < leaf.depth) {
-        deepestLeaf = leaf;
-      }
-    });
+      setTreeX(deepestLeaf, 0);
 
-    setTreeX(deepestLeaf, 0);
+      const maxX = Math.max.apply(null, widths);
+      const maxY = Math.max.apply(null, root.leaves().map((leaf) => leaf.depth));
+      root.each((node) => {
+        sizeNode(node, maxX, maxY);
+      });
 
-    const maxX = Math.max.apply(null, widths);
-    const maxY = Math.max.apply(null, root.leaves().map((leaf) => leaf.depth));
-    root.each((node) => {
-      sizeNode(node, maxX, maxY);
-    });
-
-    return root;
-  };
-
-  (tree.size as any) = (x: [number, number] | undefined) => {
-    return x ? ((dx = +x[0]), (dy = +x[1]), tree) : [dx, dy];
-  };
+      return root;
+    },
+    {
+      size: ((x: [number, number] | undefined) => {
+        return x ? ((dx = +x[0]), (dy = +x[1]), tree) : [dx, dy];
+      }) as any,
+    },
+  );
 
   function sizeNode(
     node: IHierarchyPointNodeWithMaxDepth<any>,

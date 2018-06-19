@@ -1,10 +1,11 @@
 import * as d3 from 'd3';
-import { HierarchyLink, HierarchyNode, HierarchyPointNode } from 'd3';
+import { HierarchyPointNode } from 'd3';
 import {
   ProvenanceNode,
   ProvenanceGraphTraverser,
   isStateNode,
 } from '@visualstorytelling/provenance-core';
+
 import gratzl from './gratzl';
 
 type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
@@ -37,7 +38,7 @@ export class ProvenanceTreeVisualization {
 
     const nodes = this.svg
       .selectAll('g.node')
-      .data(treeNodes, (d: HierarchyNode<ProvenanceNode>) => d.data.id);
+      .data(treeNodes, (d: any) => d.data.id as any);
 
     const newNodes = nodes
       .enter()
@@ -59,10 +60,7 @@ export class ProvenanceTreeVisualization {
 
     const links = this.svg
       .selectAll('path.link')
-      .data(
-        tree.links(),
-        (d: HierarchyLink<ProvenanceNode>) => d.target.data.id,
-      );
+      .data(tree.links(), (d: any) => d.target.data.id);
 
     const linkPath = ({
       source,

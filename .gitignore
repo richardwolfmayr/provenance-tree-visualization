@@ -3,3 +3,4 @@ dist/
 .git/
 node_modules/
 .idea
+.rpt2_cache
