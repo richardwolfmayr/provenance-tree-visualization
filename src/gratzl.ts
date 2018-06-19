@@ -77,7 +77,7 @@ export default function<Datum>(): IGratzlLayout<Datum> {
     setTreeX(deepestLeaf, 0);
 
     const maxX = Math.max.apply(null, widths);
-    const maxY = deepestLeaf.depth;
+    const maxY = Math.max.apply(null, root.leaves().map((leaf) => leaf.depth));
     root.each((node) => {
       sizeNode(node, maxX, maxY);
     });
