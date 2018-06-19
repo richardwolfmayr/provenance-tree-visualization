@@ -3,18 +3,28 @@
   "main": "src/index.js",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "start": "webpack-dev-server --watch --inline --host 0.0.0.0",
-    "format": "prettier --write ./src/**/*.{ts,tsx,json,js,scss,css} && tslint --project . --fix && sleep 1",
     "lint": "tslint --project .",
-    "precommit": "yarn format"
+    "precommit": "lint-staged"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "tslint --fix",
+      "git add"
+    ],
+    "*.{js,jsx,css,scss,json}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
   "devDependencies": {
     "@types/d3": "^5.0.0",
     "@types/d3-hierarchy": "^1.1.2",
@@ -24,6 +34,7 @@
     "html-webpack-plugin": "^3.2.0",
     "husky": "^0.14.3",
     "json-loader": "^0.5.7",
+    "lint-staged": "^7.2.0",
     "lodash": "^4.17.10",
     "node-sass": "^4.9.0",
     "prettier": "^1.13.5",
