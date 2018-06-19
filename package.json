@@ -8,11 +8,17 @@
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "start": "webpack-dev-server --watch --inline --host 0.0.0.0",
+    "format": "prettier --write ./src/**/*.{ts,tsx,json,js,scss,css}; tslint --project . --fix",
     "lint": "tslint --project ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format"
+    }
+  },
   "devDependencies": {
     "@types/d3": "^5.0.0",
     "@types/d3-hierarchy": "^1.1.2",
@@ -20,9 +26,11 @@
     "file-loader": "^1.1.11",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
+    "husky": "^0.14.3",
     "json-loader": "^0.5.7",
     "lodash": "^4.17.10",
     "node-sass": "^4.9.0",
+    "prettier": "^1.13.5",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.21.0",
     "ts-loader": "^4.3.0",
