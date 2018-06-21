@@ -25,7 +25,7 @@ export class ProvenanceTreeVisualization {
 
   public update() {
     const treeRoot = d3.hierarchy(this.traverser.graph.root);
-    const treeLayout = gratzl<ProvenanceNode>().size([100, 100]);
+    const treeLayout = gratzl<ProvenanceNode>().size([100 / 2, 100]);
 
     let layoutCurrentNode = treeRoot;
     treeRoot.each((node) => {
@@ -49,13 +49,14 @@ export class ProvenanceTreeVisualization {
 
     newNodes
       .append('circle')
-      .attr('r', .5);
+      .attr('r', 2);
 
     newNodes
       .append('text')
       .text((d) => (isStateNode(d.data) ? d.data.label : ''))
-      .attr('x', .7)
-      .attr('y', .3);
+      .attr('style', 'font-size: 8px')
+      .attr('x', 7)
+      .attr('y', 3);
 
     newNodes.merge(oldNodes)
       .attr('class', 'node')
