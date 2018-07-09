@@ -111,8 +111,8 @@ export default function<Datum>(): IGratzlLayout<Datum> {
     maxX: number,
     maxY: number,
   ): void {
-    node.x = dx - (dx / maxX) * node.xOffset;
-    node.y = (dy / maxY) * node.depth;
+    node.x = maxX === 0 ? dx : dx - (dx / maxX) * node.xOffset;
+    node.y = maxY === 0 ? dy : (dy / maxY) * node.depth;
   }
 
   return tree;
