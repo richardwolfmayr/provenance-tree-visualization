@@ -58,7 +58,7 @@
     "v": "^0.3.0"
   },
   "peerDependencies": {
-    "@visualstorytelling/provenance-core": "^1.1.2"
+    "@visualstorytelling/provenance-core": "^1.1.4"
   },
   "dependencies": {
     "cross-env": "5.0.5",
