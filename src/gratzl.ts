@@ -21,17 +21,12 @@ export interface IGratzlLayout<Datum> {
   size(size: [number, number]): this;
 }
 
-export interface IHierarchyPointNodeWithMaxDepth<Datum>
-  extends HierarchyPointNode<Datum> {
+export interface IHierarchyPointNodeWithMaxDepth<Datum> extends HierarchyPointNode<Datum> {
   maxDescendantDepth: number;
   xOffset: number;
-  parent: IHierarchyPointNodeWithMaxDepth<Datum>;
-  ancestors(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
-  leaves(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
-  each(callback: (node: IHierarchyPointNodeWithMaxDepth<Datum>) => any): any;
 }
 
-export default function<Datum>(): IGratzlLayout<Datum> {
+export default function GratzlLayout<Datum>() {
   let dx = 5;
   let dy = 50;
   const widths: number[] = [];

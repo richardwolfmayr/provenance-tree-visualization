@@ -78,8 +78,8 @@ export class ProvenanceTreeVisualization {
       target: HierarchyPointNode<ProvenanceNode>;
     }) => {
       const [s, t] = [source, target];
-      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) /
-        2} ${t.x},${t.y}`;
+      // tslint:disable-next-line
+      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) / 2} ${t.x},${t.y}`;
     };
 
     const oldLinks = this.svg
