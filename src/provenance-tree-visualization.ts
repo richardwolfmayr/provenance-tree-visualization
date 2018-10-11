@@ -4,6 +4,7 @@ import {
   ProvenanceNode,
   ProvenanceGraphTraverser,
   isStateNode,
+  ProvenanceGraph,
 } from '@visualstorytelling/provenance-core';
 
 import gratzl from './gratzl';
@@ -38,7 +39,7 @@ export class ProvenanceTreeVisualization {
 
     const oldNodes = this.svg
       .selectAll('g.node')
-      .data(treeNodes, (d: any) => d.data.id as any);
+      .data(treeNodes, (d: any) => (<ProvenanceNode>d.data).id as any);
 
     const newNodes = oldNodes
       .enter()
@@ -49,6 +50,18 @@ export class ProvenanceTreeVisualization {
 
     newNodes
       .append('circle')
+      .attr('class', (d: any) => {
+        const prefix = 'intent_';
+        const node = (<ProvenanceNode>d.data);
+
+        let result = prefix;
+        if (isStateNode(node) && node.action && node.action.metadata && node.action.metadata.userIntent) {
+          result += node.action.metadata.userIntent;          
+        } else {
+          result += 'none';
+        }
+        return result;
+      })
       .attr('r', 2);
 
     newNodes
