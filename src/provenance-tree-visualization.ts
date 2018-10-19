@@ -5,15 +5,37 @@ import {
   ProvenanceGraphTraverser,
   isStateNode,
   ProvenanceGraph,
+  RootNode,
+  StateNode
 } from '@visualstorytelling/provenance-core';
 
 import gratzl from './gratzl';
 
 type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
 
+export enum GroupMode {
+  NONE, INTENT
+}
+
+function getNodeIntent(node: ProvenanceNode): string {
+  if (isStateNode(node) && node.action && node.action.metadata && node.action.metadata.userIntent) {
+    return node.action.metadata.userIntent;
+  }
+  return 'none';
+}
+
+function isKeyNode(node: ProvenanceNode): boolean {
+  if (!isStateNode(node) || node.children.length === 0 || node.children.length > 1 || node.parent.children.length > 1 ||
+      (node.children.length === 1 && getNodeIntent(node) !== getNodeIntent(node.children[0]))) {
+      return true;
+    }
+    return false;
+}
+
 export class ProvenanceTreeVisualization {
   private traverser: ProvenanceGraphTraverser;
   private svg: D3SVGSelection;
+  private groupMode: GroupMode = GroupMode.INTENT;
 
   constructor(traverser: ProvenanceGraphTraverser, elm: HTMLDivElement) {
     this.traverser = traverser;
@@ -47,21 +69,9 @@ export class ProvenanceTreeVisualization {
       .attr('class', 'node')
       .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
       .on('click', (d) => this.traverser.toStateNode(d.data.id));
-
+    
     newNodes
       .append('circle')
-      .attr('class', (d: any) => {
-        const prefix = 'intent_';
-        const node = (<ProvenanceNode>d.data);
-
-        let result = prefix;
-        if (isStateNode(node) && node.action && node.action.metadata && node.action.metadata.userIntent) {
-          result += node.action.metadata.userIntent;          
-        } else {
-          result += 'none';
-        }
-        return result;
-      })
       .attr('r', 2);
 
     newNodes
@@ -71,14 +81,37 @@ export class ProvenanceTreeVisualization {
       .attr('x', 7)
       .attr('y', 3);
 
-    newNodes.merge(oldNodes)
-      .attr('class', 'node')
+    const updateNodes = newNodes.merge(oldNodes);
+
+    updateNodes
+      .select('circle')
+      .attr('class', (d: any) => {
+        let classString = '';
+        if (isKeyNode(d.data)) {
+          classString += ' keynode';
+        }
+        classString += ' intent_' + getNodeIntent(d.data);
+
+        return classString;
+      });
+
+    updateNodes
+      .select('text')
+      .attr('visibility', (d: any) => { 
+        if(d.xOffset === 0) { 
+          return 'visible';
+        } else {
+          return 'hidden';
+        }
+      })
+
+    updateNodes
       .filter((d: any) => d.xOffset === 0)
       .attr('class', 'node branch-active')
       .filter((d: any) => d.data === this.traverser.graph.current)
       .attr('class', 'node branch-active node-active');
 
-    newNodes.merge(oldNodes)
+    updateNodes
       .transition()
       .duration(500)
       .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
