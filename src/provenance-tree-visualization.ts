@@ -47,12 +47,10 @@ const wrapNode = (node: ProvenanceNode): IGroupedTreeNode<ProvenanceNode> => {
 };
 
 /* this test groups nodes if they share the same userIntent */
-export const testUserIntent: NodeGroupTest<ProvenanceNode> = (a: IGroupedTreeNode<ProvenanceNode>, b: typeof a) => {
-  return (
-    a.children.length === 1 &&
-    (getNodeIntent(a.wrappedNodes[0]) === getNodeIntent(b.wrappedNodes[0]))
-  );
-};
+export const testUserIntent: NodeGroupTest<ProvenanceNode> = (a, b) => (
+  a.children.length === 1 &&
+  (getNodeIntent(a.wrappedNodes[0]) === getNodeIntent(b.wrappedNodes[0]))
+);
 
 export class ProvenanceTreeVisualization {
   private traverser: ProvenanceGraphTraverser;

@@ -21,7 +21,7 @@ export default {
     { file: pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: ['d3', 'd3-hierarchy'],
+  external: ['d3', 'd3-hierarchy', '@visualstorytelling/provenance-core'],
   watch: {
     include: 'src/**',
   },
