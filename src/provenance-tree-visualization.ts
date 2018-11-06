@@ -4,18 +4,13 @@ import {
   ProvenanceNode,
   ProvenanceGraphTraverser,
   isStateNode,
-  ProvenanceGraph,
-  RootNode,
-  StateNode
 } from '@visualstorytelling/provenance-core';
 
 import gratzl from './gratzl';
+import { IGroupedTreeNode } from './tree';
+import { group, NodeGroupTest } from './grouping';
 
 type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
-
-export enum GroupMode {
-  NONE, INTENT
-}
 
 function getNodeIntent(node: ProvenanceNode): string {
   if (isStateNode(node) && node.action && node.action.metadata && node.action.metadata.userIntent) {
@@ -29,13 +24,40 @@ function isKeyNode(node: ProvenanceNode): boolean {
       (node.children.length === 1 && getNodeIntent(node) !== getNodeIntent(node.children[0]))) {
       return true;
     }
-    return false;
+  return false;
 }
+
+/* returns a label for grouped nodes */
+const groupNodeLabel = (node: IGroupedTreeNode<ProvenanceNode>) => {
+  if (node.wrappedNodes.length === 1) {
+    return node.wrappedNodes[0].label;
+  } else {
+    return `group (${node.wrappedNodes.length.toString()})`;
+  }
+};
+
+/* wraps each node in the provenance tree in an extra IGroupedTreeNode; which can be
+   manipulated for grouping etc, without modifying the actual ProvenanceTree.
+ */
+const wrapNode = (node: ProvenanceNode): IGroupedTreeNode<ProvenanceNode> => {
+  return {
+    wrappedNodes: [node],
+    children: node.children.map(wrapNode),
+  };
+};
+
+/* this test groups nodes if they share the same userIntent */
+export const testUserIntent: NodeGroupTest<ProvenanceNode> = (a: IGroupedTreeNode<ProvenanceNode>, b: typeof a) => {
+  return (
+    a.children.length === 1 &&
+    (getNodeIntent(a.wrappedNodes[0]) === getNodeIntent(b.wrappedNodes[0]))
+  );
+};
 
 export class ProvenanceTreeVisualization {
   private traverser: ProvenanceGraphTraverser;
   private svg: D3SVGSelection;
-  private groupMode: GroupMode = GroupMode.INTENT;
+  private _groupTest: NodeGroupTest<ProvenanceNode> = testUserIntent;
 
   constructor(traverser: ProvenanceGraphTraverser, elm: HTMLDivElement) {
     this.traverser = traverser;
@@ -46,13 +68,24 @@ export class ProvenanceTreeVisualization {
     this.update();
   }
 
+  public set groupTest(test: NodeGroupTest<ProvenanceNode>) {
+    this._groupTest = test;
+  }
+
+  public get groupTest() {
+    return this._groupTest;
+  }
+
   public update() {
-    const treeRoot = d3.hierarchy(this.traverser.graph.root);
-    const treeLayout = gratzl<ProvenanceNode>().size([100 / 2, 100]);
+    const wrappedRoot = wrapNode(this.traverser.graph.root);
+    // group by userIntent
+    group(wrappedRoot, this.groupTest);
+    const treeRoot = d3.hierarchy(wrappedRoot);
+    const treeLayout = gratzl<IGroupedTreeNode<ProvenanceNode>>().size([100 / 2, 100]);
 
     let layoutCurrentNode = treeRoot;
     treeRoot.each((node) => {
-      if (node.data === this.traverser.graph.current) {
+      if (node.data.wrappedNodes.includes(this.traverser.graph.current)) {
         layoutCurrentNode = node;
       }
     });
@@ -61,22 +94,27 @@ export class ProvenanceTreeVisualization {
 
     const oldNodes = this.svg
       .selectAll('g.node')
-      .data(treeNodes, (d: any) => (<ProvenanceNode>d.data).id as any);
+      .data(treeNodes, (d: any) => (
+        d.data.wrappedNodes.map((n: any) => n.id).join()
+      ))
+    ;
+
+    oldNodes.exit().remove();
 
     const newNodes = oldNodes
       .enter()
       .append('g')
       .attr('class', 'node')
       .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
-      .on('click', (d) => this.traverser.toStateNode(d.data.id));
-    
+      .on('click', (d) => this.traverser.toStateNode(d.data.wrappedNodes[0].id));
+
     newNodes
       .append('circle')
       .attr('r', 2);
 
     newNodes
       .append('text')
-      .text((d) => (isStateNode(d.data) ? d.data.label : ''))
+      .text((d) => groupNodeLabel(d.data))
       .attr('style', 'font-size: 8px')
       .attr('x', 7)
       .attr('y', 3);
@@ -87,28 +125,28 @@ export class ProvenanceTreeVisualization {
       .select('circle')
       .attr('class', (d: any) => {
         let classString = '';
-        if (isKeyNode(d.data)) {
+        if (isKeyNode(d.data.wrappedNodes[0])) {
           classString += ' keynode';
         }
-        classString += ' intent_' + getNodeIntent(d.data);
+        classString += ' intent_' + getNodeIntent(d.data.wrappedNodes[0]);
 
         return classString;
       });
 
     updateNodes
       .select('text')
-      .attr('visibility', (d: any) => { 
-        if(d.xOffset === 0) { 
+      .attr('visibility', (d: any) => {
+        if (d.xOffset === 0) {
           return 'visible';
         } else {
           return 'hidden';
         }
-      })
+      });
 
     updateNodes
       .filter((d: any) => d.xOffset === 0)
       .attr('class', 'node branch-active')
-      .filter((d: any) => d.data === this.traverser.graph.current)
+      .filter((d: any) => d.data.wrappedNodes.includes(this.traverser.graph.current))
       .attr('class', 'node branch-active node-active');
 
     updateNodes
@@ -120,8 +158,8 @@ export class ProvenanceTreeVisualization {
       source,
       target,
     }: {
-      source: HierarchyPointNode<ProvenanceNode>;
-      target: HierarchyPointNode<ProvenanceNode>;
+      source: HierarchyPointNode<IGroupedTreeNode<ProvenanceNode>>;
+      target: HierarchyPointNode<IGroupedTreeNode<ProvenanceNode>>;
     }) => {
       const [s, t] = [source, target];
       // tslint:disable-next-line
@@ -130,7 +168,9 @@ export class ProvenanceTreeVisualization {
 
     const oldLinks = this.svg
       .selectAll('path.link')
-      .data(tree.links(), (d: any) => d.target.data.id);
+      .data(tree.links(), (d: any) => d.target.data.wrappedNodes.map((n: any) => n.id).join());
+
+    oldLinks.exit().remove();
 
     const newLinks = oldLinks
       .enter()
