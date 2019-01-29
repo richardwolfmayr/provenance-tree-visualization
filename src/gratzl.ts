@@ -25,13 +25,9 @@ export interface IHierarchyPointNodeWithMaxDepth<Datum>
   extends HierarchyPointNode<Datum> {
   maxDescendantDepth: number;
   xOffset: number;
-  parent: IHierarchyPointNodeWithMaxDepth<Datum>;
-  ancestors(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
-  leaves(): Array<IHierarchyPointNodeWithMaxDepth<Datum>>;
-  each(callback: (node: IHierarchyPointNodeWithMaxDepth<Datum>) => any): any;
 }
 
-export default function<Datum>(): IGratzlLayout<Datum> {
+export default function GratzlLayout<Datum>() {
   let dx = 5;
   let dy = 50;
   const widths: number[] = [];
@@ -62,10 +58,10 @@ export default function<Datum>(): IGratzlLayout<Datum> {
   const tree: IGratzlLayout<Datum> = Object.assign(
     (_root: HierarchyNode<Datum>, _activeNode: HierarchyNode<Datum>) => {
       /*
-    * set maxDescendantDepth on each node,
-    * which is the depth of its deepest child
-    *
-    * */
+       * set maxDescendantDepth on each node,
+       * which is the depth of its deepest child
+       *
+       * */
 
       const root = _root as IHierarchyPointNodeWithMaxDepth<Datum>;
       const activeNode = _activeNode as IHierarchyPointNodeWithMaxDepth<Datum>;
