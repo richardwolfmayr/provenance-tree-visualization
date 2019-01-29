@@ -1,12 +1,12 @@
-import * as d3 from 'd3';
-import { HierarchyPointNode } from 'd3';
+import { Output } from "@angular/core";
 import {
-  ProvenanceNode,
-  ProvenanceGraphTraverser,
   isStateNode,
-} from '@visualstorytelling/provenance-core';
-import { Output } from '@angular/core';
-import gratzl, { IHierarchyPointNodeWithMaxDepth } from './gratzl';
+  ProvenanceGraphTraverser,
+  ProvenanceNode
+} from "@visualstorytelling/provenance-core";
+import * as d3 from "d3";
+import { HierarchyPointNode } from "d3";
+import gratzl, { IHierarchyPointNodeWithMaxDepth } from "./gratzl";
 
 type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
 type ITreeNodes = Array<IHierarchyPointNodeWithMaxDepth<ProvenanceNode>>;
@@ -21,9 +21,9 @@ export class ProvenanceTreeVisualization {
   public taskList: ITask[] = [
     {
       taskId: this.taskId,
-      taskName: 'Task' + this.taskId,
-      taskNodes: [],
-    },
+      taskName: "Task" + this.taskId,
+      taskNodes: []
+    }
   ];
   private traverser: ProvenanceGraphTraverser;
   private svg: D3SVGSelection;
@@ -35,10 +35,10 @@ export class ProvenanceTreeVisualization {
   constructor(traverser: ProvenanceGraphTraverser, elm: HTMLDivElement) {
     this.traverser = traverser;
 
-    this.svg = (d3.select(elm).append('svg') as D3SVGSelection)
-      .attr('viewBox', '-10 -10 130 130')
-      .attr('style', 'width: 100%; height: 100%');
-    traverser.graph.on('currentChanged', () => this.update());
+    this.svg = (d3.select(elm).append("svg") as D3SVGSelection)
+      .attr("viewBox", "-10 -10 130 130")
+      .attr("style", "width: 100%; height: 100%");
+    traverser.graph.on("currentChanged", () => this.update());
     this.onChange = this.onChange.bind(this);
     this.update();
   }
@@ -66,8 +66,8 @@ export class ProvenanceTreeVisualization {
       newTaskNodes.splice(0, this.currentIndex + 1);
       const task = {
         taskId: this.taskId,
-        taskName: 'Task' + this.taskId,
-        taskNodes: newTaskNodes,
+        taskName: "Task" + this.taskId,
+        taskNodes: newTaskNodes
       };
       this.taskList.push(task);
       newTaskNodes.forEach(
@@ -79,28 +79,28 @@ export class ProvenanceTreeVisualization {
               node.data.action.metadata = { taskId: this.taskId };
             }
           }
-        },
+        }
       );
 
       // this.taskList.push(task);
     }
     this.treeNodes.forEach((node, index) => {
       if (node.data.id === this.traverser.graph.current.id) {
-        console.log('Nodes from index', index);
+        console.log("Nodes from index", index);
         this.currentIndex = index;
       }
     });
 
     this.taskId += 1;
     this.checkBoxList.push(this.taskId);
-    console.log('TaskList', this.taskList);
+    console.log("TaskList", this.taskList);
   }
   public update() {
     const treeRoot = d3.hierarchy(this.traverser.graph.root);
     const treeLayout = gratzl<ProvenanceNode>().size([100 / 2, 100]);
 
     let layoutCurrentNode = treeRoot;
-    treeRoot.each((node) => {
+    treeRoot.each(node => {
       if (node.data === this.traverser.graph.current) {
         layoutCurrentNode = node;
       }
@@ -110,42 +110,42 @@ export class ProvenanceTreeVisualization {
     this.treeNodes = tree.descendants();
 
     const oldNodes = this.svg
-      .selectAll('g.node')
+      .selectAll("g.node")
       .data(this.treeNodes, (d: any) => d.data.id as any);
 
     const newNodes = oldNodes
       .enter()
-      .append('g')
-      .attr('class', 'node')
-      .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
-      .on('click', (d) => this.traverser.toStateNode(d.data.id));
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", (d: any) => `translate(${d.x}, ${d.y})`)
+      .on("click", d => this.traverser.toStateNode(d.data.id));
 
-    newNodes.append('circle').attr('r', 2);
+    newNodes.append("circle").attr("r", 2);
 
     newNodes
-      .append('text')
-      .text((d) => (isStateNode(d.data) ? d.data.label : ''))
-      .attr('style', 'font-size: 6px')
-      .attr('x', 7)
-      .attr('y', 3);
+      .append("text")
+      .text(d => (isStateNode(d.data) ? d.data.label : ""))
+      .attr("style", "font-size: 6px")
+      .attr("x", 7)
+      .attr("y", 3);
 
     newNodes
       .merge(oldNodes)
-      .attr('class', 'node')
+      .attr("class", "node")
       .filter((d: any) => d.xOffset === 0)
-      .attr('class', 'node branch-active')
+      .attr("class", "node branch-active")
       .filter((d: any) => d.data === this.traverser.graph.current)
-      .attr('class', 'node branch-active node-active');
+      .attr("class", "node branch-active node-active");
 
     newNodes
       .merge(oldNodes)
       .transition()
       .duration(500)
-      .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
+      .attr("transform", (d: any) => `translate(${d.x}, ${d.y})`);
 
     const linkPath = ({
       source,
-      target,
+      target
     }: {
       source: HierarchyPointNode<ProvenanceNode>;
       target: HierarchyPointNode<ProvenanceNode>;
@@ -157,24 +157,24 @@ export class ProvenanceTreeVisualization {
     };
 
     const oldLinks = this.svg
-      .selectAll('path.link')
+      .selectAll("path.link")
       .data(tree.links(), (d: any) => d.target.data.id);
 
     const newLinks = oldLinks
       .enter()
-      .insert('path', 'g')
-      .attr('d', linkPath);
+      .insert("path", "g")
+      .attr("d", linkPath);
 
     oldLinks
       .merge(newLinks)
-      .attr('class', 'link')
+      .attr("class", "link")
       .filter((d: any) => d.target.xOffset === 0)
-      .attr('class', 'link active');
+      .attr("class", "link active");
 
     oldLinks
       .merge(newLinks)
       .transition()
       .duration(500)
-      .attr('d', linkPath);
+      .attr("d", linkPath);
   }
 }

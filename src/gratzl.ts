@@ -1,8 +1,8 @@
-import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
+import { HierarchyNode, HierarchyPointNode } from "d3-hierarchy";
 
 function depthSort(
   a: IHierarchyPointNodeWithMaxDepth<any>,
-  b: IHierarchyPointNodeWithMaxDepth<any>,
+  b: IHierarchyPointNodeWithMaxDepth<any>
 ) {
   if (a.maxDescendantDepth > b.maxDescendantDepth) {
     return -1;
@@ -15,7 +15,7 @@ function depthSort(
 export interface IGratzlLayout<Datum> {
   (
     root: HierarchyNode<Datum>,
-    activeNode: HierarchyNode<Datum>,
+    activeNode: HierarchyNode<Datum>
   ): IHierarchyPointNodeWithMaxDepth<Datum>;
   size(): [number, number];
   size(size: [number, number]): this;
@@ -39,18 +39,18 @@ export default function GratzlLayout<Datum>() {
       node
         .leaves()
         .sort(depthSort)
-        .forEach((leaf) => {
-          if (typeof leaf.xOffset === 'undefined') {
+        .forEach(leaf => {
+          if (typeof leaf.xOffset === "undefined") {
             const width = Math.max.apply(
               null,
-              widths.slice(node.depth, leaf.depth + 1),
+              widths.slice(node.depth, leaf.depth + 1)
             );
             setTreeX(leaf, val > width ? val : width + 1);
           }
         });
     }
 
-    if (node.parent && typeof node.parent.xOffset === 'undefined') {
+    if (node.parent && typeof node.parent.xOffset === "undefined") {
       setTreeX(node.parent, val);
     }
   }
@@ -66,8 +66,8 @@ export default function GratzlLayout<Datum>() {
       const root = _root as IHierarchyPointNodeWithMaxDepth<Datum>;
       const activeNode = _activeNode as IHierarchyPointNodeWithMaxDepth<Datum>;
 
-      root.leaves().forEach((leaf) => {
-        leaf.ancestors().forEach((leafAncestor) => {
+      root.leaves().forEach(leaf => {
+        leaf.ancestors().forEach(leafAncestor => {
           if (
             !leafAncestor.maxDescendantDepth ||
             leaf.depth > leafAncestor.maxDescendantDepth
@@ -79,7 +79,7 @@ export default function GratzlLayout<Datum>() {
 
       /* rendering should start at the deepest leaf of activeNode. */
       let deepestLeaf = activeNode;
-      activeNode.leaves().forEach((leaf) => {
+      activeNode.leaves().forEach(leaf => {
         if (deepestLeaf.depth < leaf.depth) {
           deepestLeaf = leaf;
         }
@@ -88,8 +88,8 @@ export default function GratzlLayout<Datum>() {
       setTreeX(deepestLeaf, 0);
 
       const maxX = Math.max.apply(null, widths);
-      const maxY = Math.max.apply(null, root.leaves().map((leaf) => leaf.depth));
-      root.each((node) => {
+      const maxY = Math.max.apply(null, root.leaves().map(leaf => leaf.depth));
+      root.each(node => {
         sizeNode(node, maxX, maxY);
       });
 
@@ -98,14 +98,14 @@ export default function GratzlLayout<Datum>() {
     {
       size: ((x: [number, number] | undefined) => {
         return x ? ((dx = +x[0]), (dy = +x[1]), tree) : [dx, dy];
-      }) as any,
-    },
+      }) as any
+    }
   );
 
   function sizeNode(
     node: IHierarchyPointNodeWithMaxDepth<any>,
     maxX: number,
-    maxY: number,
+    maxY: number
   ): void {
     node.x = maxX === 0 ? dx : dx - (dx / maxX) * node.xOffset;
     node.y = maxY === 0 ? dy : (dy / maxY) * node.depth;
