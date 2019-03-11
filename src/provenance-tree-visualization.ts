@@ -10,7 +10,7 @@ import gratzl from './gratzl';
 import { IGroupedTreeNode } from './tree';
 import { group, NodeGroupTest } from './grouping';
 
-type D3SVGSelection = d3.Selection<SVGElement, any, null, undefined>;
+type D3SVGSelection = d3.Selection<SVGSVGElement, any, null, undefined>;
 
 function getNodeIntent(node: ProvenanceNode): string {
   if (isStateNode(node) && node.action && node.action.metadata && node.action.metadata.userIntent) {
@@ -117,7 +117,7 @@ export class ProvenanceTreeVisualization {
       .attr('x', 7)
       .attr('y', 3);
 
-    const updateNodes = newNodes.merge(oldNodes);
+    const updateNodes = newNodes.merge(oldNodes as any);
 
     updateNodes
       .select('circle')
@@ -175,12 +175,12 @@ export class ProvenanceTreeVisualization {
       .insert('path', 'g')
       .attr('d', linkPath);
 
-    oldLinks.merge(newLinks)
+    oldLinks.merge(newLinks as any)
       .attr('class', 'link')
       .filter((d: any) => d.target.xOffset === 0)
       .attr('class', 'link active');
 
-    oldLinks.merge(newLinks)
+    oldLinks.merge(newLinks as any)
       .transition()
       .duration(500)
       .attr('d', linkPath);
