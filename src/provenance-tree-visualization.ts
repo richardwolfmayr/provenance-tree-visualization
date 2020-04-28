@@ -13,28 +13,17 @@ import { group, NodeGroupTest } from './grouping';
 type D3SVGSelection = d3.Selection<SVGSVGElement, any, null, undefined>;
 
 function getNodeIntent(node: ProvenanceNode): string {
-  if (
-    isStateNode(node) &&
-    node.action &&
-    node.action.metadata &&
-    node.action.metadata.userIntent
-  ) {
+  if (isStateNode(node) && node.action && node.action.metadata && node.action.metadata.userIntent) {
     return node.action.metadata.userIntent;
   }
   return 'none';
 }
 
 function isKeyNode(node: ProvenanceNode): boolean {
-  if (
-    !isStateNode(node) ||
-    node.children.length === 0 ||
-    node.children.length > 1 ||
-    node.parent.children.length > 1 ||
-    (node.children.length === 1 &&
-      getNodeIntent(node) !== getNodeIntent(node.children[0]))
-  ) {
-    return true;
-  }
+  if (!isStateNode(node) || node.children.length === 0 || node.children.length > 1 || node.parent.children.length > 1 ||
+      (node.children.length === 1 && getNodeIntent(node) !== getNodeIntent(node.children[0]))) {
+      return true;
+    }
   return false;
 }
 
@@ -58,9 +47,10 @@ const wrapNode = (node: ProvenanceNode): IGroupedTreeNode<ProvenanceNode> => {
 };
 
 /* this test groups nodes if they share the same userIntent */
-export const testUserIntent: NodeGroupTest<ProvenanceNode> = (a, b) =>
+export const testUserIntent: NodeGroupTest<ProvenanceNode> = (a, b) => (
   a.children.length === 1 &&
-  getNodeIntent(a.wrappedNodes[0]) === getNodeIntent(b.wrappedNodes[0]);
+  (getNodeIntent(a.wrappedNodes[0]) === getNodeIntent(b.wrappedNodes[0]))
+);
 
 export class ProvenanceTreeVisualization {
   private traverser: ProvenanceGraphTraverser;
@@ -89,10 +79,7 @@ export class ProvenanceTreeVisualization {
     // group by userIntent
     group(wrappedRoot, this.groupTest);
     const treeRoot = d3.hierarchy(wrappedRoot);
-    const treeLayout = gratzl<IGroupedTreeNode<ProvenanceNode>>().size([
-      100 / 2,
-      100,
-    ]);
+    const treeLayout = gratzl<IGroupedTreeNode<ProvenanceNode>>().size([100 / 2, 100]);
 
     let layoutCurrentNode = treeRoot;
     treeRoot.each((node) => {
@@ -105,9 +92,10 @@ export class ProvenanceTreeVisualization {
 
     const oldNodes = this.svg
       .selectAll('g.node')
-      .data(treeNodes, (d: any) =>
-        d.data.wrappedNodes.map((n: any) => n.id).join(),
-      );
+      .data(treeNodes, (d: any) => (
+        d.data.wrappedNodes.map((n: any) => n.id).join()
+      ))
+    ;
 
     oldNodes.exit().remove();
 
@@ -118,7 +106,9 @@ export class ProvenanceTreeVisualization {
       .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
       .on('click', (d) => this.traverser.toStateNode(d.data.wrappedNodes[0].id));
 
-    newNodes.append('circle').attr('r', 5);
+    newNodes
+      .append('circle')
+      .attr('r', 2);
 
     newNodes
       .append('text')
@@ -129,30 +119,32 @@ export class ProvenanceTreeVisualization {
 
     const updateNodes = newNodes.merge(oldNodes as any);
 
-    updateNodes.select('circle').attr('class', (d: any) => {
-      let classString = '';
-      if (isKeyNode(d.data.wrappedNodes[0])) {
-        classString += ' keynode';
-      }
-      classString += ' intent_' + getNodeIntent(d.data.wrappedNodes[0]);
+    updateNodes
+      .select('circle')
+      .attr('class', (d: any) => {
+        let classString = '';
+        if (isKeyNode(d.data.wrappedNodes[0])) {
+          classString += ' keynode';
+        }
+        classString += ' intent_' + getNodeIntent(d.data.wrappedNodes[0]);
 
-      return classString;
-    });
+        return classString;
+      });
 
-    updateNodes.select('text').attr('visibility', (d: any) => {
-      if (d.xOffset === 0) {
-        return 'visible';
-      } else {
-        return 'hidden';
-      }
-    });
+    updateNodes
+      .select('text')
+      .attr('visibility', (d: any) => {
+        if (d.xOffset === 0) {
+          return 'visible';
+        } else {
+          return 'hidden';
+        }
+      });
 
     updateNodes
       .filter((d: any) => d.xOffset === 0)
       .attr('class', 'node branch-active')
-      .filter((d: any) =>
-        d.data.wrappedNodes.includes(this.traverser.graph.current),
-      )
+      .filter((d: any) => d.data.wrappedNodes.includes(this.traverser.graph.current))
       .attr('class', 'node branch-active node-active');
 
     updateNodes
@@ -169,15 +161,12 @@ export class ProvenanceTreeVisualization {
     }) => {
       const [s, t] = [source, target];
       // tslint:disable-next-line
-      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) /
-        2} ${t.x},${t.y}`;
+      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) / 2} ${t.x},${t.y}`;
     };
 
     const oldLinks = this.svg
       .selectAll('path.link')
-      .data(tree.links(), (d: any) =>
-        d.target.data.wrappedNodes.map((n: any) => n.id).join(),
-      );
+      .data(tree.links(), (d: any) => d.target.data.wrappedNodes.map((n: any) => n.id).join());
 
     oldLinks.exit().remove();
 
@@ -186,14 +175,12 @@ export class ProvenanceTreeVisualization {
       .insert('path', 'g')
       .attr('d', linkPath);
 
-    oldLinks
-      .merge(newLinks as any)
+    oldLinks.merge(newLinks as any)
       .attr('class', 'link')
       .filter((d: any) => d.target.xOffset === 0)
       .attr('class', 'link active');
 
-    oldLinks
-      .merge(newLinks as any)
+    oldLinks.merge(newLinks as any)
       .transition()
       .duration(500)
       .attr('d', linkPath);

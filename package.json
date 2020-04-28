@@ -54,7 +54,7 @@
     "rollup-plugin-typescript2": "^0.22.1",
     "ts-loader": "^6.0.4",
     "tslint": "^5.18.0",
-    "typescript": "^3.8.3",
+    "typescript": "^3.5.3",
     "v": "^0.3.0"
   },
   "peerDependencies": {
