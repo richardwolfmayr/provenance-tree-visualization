@@ -89,6 +89,7 @@ export class ProvenanceTreeVisualization {
     // group by userIntent
     group(wrappedRoot, this.groupTest);
     const treeRoot = d3.hierarchy(wrappedRoot);
+    // change size and distance between nodes here
     const treeLayout = gratzl<IGroupedTreeNode<ProvenanceNode>>().size([
       100 / 2,
       100,
@@ -118,14 +119,14 @@ export class ProvenanceTreeVisualization {
       .attr('transform', (d: any) => `translate(${d.y}, ${d.x})`)
       .on('click', (d) => this.traverser.toStateNode(d.data.wrappedNodes[0].id));
 
-    newNodes.append('circle').attr('r', 2);
+    newNodes.append('circle').attr('r', 4);
 
-    newNodes
-      .append('text')
-      .text((d) => groupNodeLabel(d.data))
-      .attr('style', 'font-size: 5px')
-      .attr('x', -20)
-      .attr('y', 8);
+    // newNodes
+    //   .append('text')
+    //   .text((d) => groupNodeLabel(d.data))
+    //   .attr('style', 'font-size: 5px')
+    //   .attr('x', -20)
+    //   .attr('y', 8);
 
     // tslint:disable-next-line:no-debugger
     debugger
@@ -185,10 +186,39 @@ export class ProvenanceTreeVisualization {
 
     oldLinks.exit().remove();
 
-    const newLinks = oldLinks
-      .enter()
-      .insert('path', 'g')
-      .attr('d', linkPath);
+    const newLinks = oldLinks.enter().append('g');
+
+    newLinks.insert('text').attr('fill', 'Black')
+      .style('font', 'normal 4px Arial')
+      .attr('transform', (d) => {
+        return 'translate(' +
+          ((d.source.y + d.target.y) / 2) + ',' +
+          ((d.source.x + d.target.x) / 2) + ')';
+      })
+      .attr('dy', '.35em')
+      .attr('text-anchor', 'middle')
+      .text((d) => {
+        // tslint:disable-next-line:no-console
+        console.log(groupNodeLabel(d.target.data));
+        return groupNodeLabel(d.target.data).substring(0, 2);
+      });
+
+    // tslint:disable-next-line:no-debugger
+    debugger
+    newLinks.insert('path', 'g')
+      .attr('d', linkPath)
+      .attr('stroke-width', '1.2' )
+      .attr('stroke', (d) => {
+        switch (groupNodeLabel(d.target.data)) {
+          case 'addCell':
+            return 'green';
+            break;
+          case 'executeCell':
+            return 'blue';
+          default:
+            return 'pink';
+        }
+      });
 
     oldLinks
       .merge(newLinks as any)
