@@ -115,18 +115,20 @@ export class ProvenanceTreeVisualization {
       .enter()
       .append('g')
       .attr('class', 'node')
-      .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
+      .attr('transform', (d: any) => `translate(${d.y}, ${d.x})`)
       .on('click', (d) => this.traverser.toStateNode(d.data.wrappedNodes[0].id));
 
-    newNodes.append('circle').attr('r', 5);
+    newNodes.append('circle').attr('r', 2);
 
     newNodes
       .append('text')
       .text((d) => groupNodeLabel(d.data))
-      .attr('style', 'font-size: 8px')
-      .attr('x', 7)
-      .attr('y', 3);
+      .attr('style', 'font-size: 5px')
+      .attr('x', -20)
+      .attr('y', 8);
 
+    // tslint:disable-next-line:no-debugger
+    debugger
     const updateNodes = newNodes.merge(oldNodes as any);
 
     updateNodes.select('circle').attr('class', (d: any) => {
@@ -158,7 +160,7 @@ export class ProvenanceTreeVisualization {
     updateNodes
       .transition()
       .duration(500)
-      .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
+      .attr('transform', (d: any) => `translate(${d.y}, ${d.x})`);
 
     const linkPath = ({
       source,
@@ -168,9 +170,11 @@ export class ProvenanceTreeVisualization {
       target: HierarchyPointNode<IGroupedTreeNode<ProvenanceNode>>;
     }) => {
       const [s, t] = [source, target];
-      // tslint:disable-next-line
-      return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) /
-        2} ${t.x},${t.y}`;
+      // // tslint:disable-next-line
+      // return `M${s.x},${s.y}C${s.x},${(s.y + t.y) / 2} ${t.x},${(s.y + t.y) /
+      //   2} ${t.x},${t.y}`;
+      return `M${s.y},${s.x}C${s.y},${(s.x + t.x) / 2} ${t.y},${(s.x + t.x) /
+      2} ${t.y},${t.x}`;
     };
 
     const oldLinks = this.svg
